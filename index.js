@@ -12,6 +12,9 @@ io.on('connection', function (socket) {
     });
     socket.on('disconnect', function () {
         console.log(clientIp + ' deconnected');
+    });    
+	socket.on('update loc', function () {
+        console.log(clientIp + ' updated their location');
     });
 });
 
