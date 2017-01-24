@@ -15,15 +15,17 @@ io.on('connection', function (socket) {
         io.emit('chat message', msg);
     });
     socket.on('disconnect', function () {
-        console.log(clientIp + ' deconnected');
+        console.log(clientIp + ' disconnected');
     });
-	socket.on('update loc', function () {
+    socket.on('update loc', function (data) {
+        var data = data;
         console.log(clientIp + ' updated their location');
-    });    
+        console.log('new location, user : '+data.name+' change position -- latitude = ' + data.latitude + ', longitude = ' + data.longitude);
+    });
 });
 
 var port = process.env.PORT || 3000;
 
 http.listen(port, function () {
-    console.log('listening on : '+ port);
+    console.log('listening on : ' + port);
 });
