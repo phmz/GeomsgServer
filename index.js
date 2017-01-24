@@ -7,12 +7,19 @@ app.get('/', function (req, res) {
 });
 
 io.on('connection', function (socket) {
+    var socketRequest = socket.request;
+    var userId = socketRequest._query['userId'];
+    var latitude = socketRequest._query['latitude'];
+    var longitude = socketRequest._query['longitude'];
+    console.log('new client ' + userId);
     var clientIp = socket.request.connection.remoteAddress;
 
     console.log(clientIp + ' connected');
-    socket.on('chat message', function (msg) {
-        console.log(clientIp + ' sent: ' + msg);
-        io.emit('chat message', msg);
+    socket.on('chat message', function (data) {
+        var data = data;
+        console.log(data.fromUser + ' SENT A MESSAGE TO '+ data.toUser + '\n' + data.message);
+        //console.log(clientIp + ' sent: ' + msg);
+        io.emit('chat message', "delivered");
     });
     socket.on('disconnect', function () {
         console.log(clientIp + ' disconnected');
