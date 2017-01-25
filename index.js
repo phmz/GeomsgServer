@@ -9,8 +9,6 @@ app.get('/', function (req, res) {
 io.on('connection', function (socket) {
     var socketRequest = socket.request;
     var userId = socketRequest._query['userId'];
-    var latitude = socketRequest._query['latitude'];
-    var longitude = socketRequest._query['longitude'];
     console.log('new client ' + userId);
     var clientIp = socket.request.connection.remoteAddress;
 
