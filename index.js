@@ -51,7 +51,7 @@ function getUserList(userId, latitude, longitude) {
     var jsonList = "";
     users.forEach(function (value, key) {
         if (userId !== key) {
-            var userJson = userToJsonString(userId, latitude, longitude);
+            var userJson = userToJsonString(key, value.latitude, value.longitude);
             console.log(distanceBetween(latitude, longitude, value.latitude, value.longitude) + " meters");
             jsonList = appendUserToJson(jsonList, userJson);
         }
