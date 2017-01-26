@@ -19,7 +19,7 @@ io.on('connection', function (socket) {
         var data = data;
         console.log(data.fromUser + ' SENT A MESSAGE TO ' + data.toUser + '\n' + data.message);
         //console.log(clientIp + ' sent: ' + msg);
-        socket.emit('chat message', "sent");
+        socket.emit('chat message', data.fromUser + ' SENT A MESSAGE TO ' + data.toUser + '\n' + data.message);
     });
     socket.on('disconnect', function () {
         console.log(clientIp + ' disconnected');
