@@ -20,10 +20,13 @@ io.on('connection', function (socket) {
         console.log(data);
         console.log(data.fromUser + ' SENT A MESSAGE TO ' + data.toUser + '\n' + data.message);
         //console.log(clientIp + ' sent: ' + msg);
-        socket.emit('chat message', data.fromUser + ' SENT A MESSAGE TO ' + data.toUser + '\n' + data.message);
+        //socket.emit('chat message', data.fromUser + ' SENT A MESSAGE TO ' + data.toUser + '\n' + data.message);
         //users.get(data.toUser)[1].emit('chat message', data.toUser + 'RECEIVE FROM' + data.fromUser +'\n' + data.message);
-
-        socket.broadcast.to(users.get(data.toUser)[1].id).emit('chat message','Received a message from ' + data.fromUser + '\n' + data.message);
+        var json = {
+            userId: data.fromUser,
+            message: data.message
+        };
+        socket.broadcast.to(users.get(data.toUser).socket.id).emit('chat message',json);
     });
     socket.on('disconnect', function () {
         console.log(clientIp + ' disconnected');
@@ -32,22 +35,22 @@ io.on('connection', function (socket) {
         var data = data;
         console.log(clientIp + ' updated their location');
         console.log('new location, user : ' + data.name + ' change position -- latitude = ' + data.latitude + ', longitude = ' + data.longitude);
-        users.get(data.name)[0].latitude = data.latitude;
-        users.get(data.name)[0].longitude = data.longitude;
+        users.get(data.name).latitude = data.latitude;
+        users.get(data.name).longitude = data.longitude;
     });
 
-    socket.on('new connection', function (userId, data) {
-        var data = data;
+    socket.on('new connection', function (userId) {
+        var data = {};
+        data.socket = socket;
         var userId = userId;
-        var arraysDataSocket = new Array(data, socket);
-        users.set(userId, arraysDataSocket);
-        console.log('New user connected: ' + userId + ' ' + users.get(userId).latitude + ' ' + users.get(userId).longitude);
+        users.set(userId, data);
+        console.log('New user connected: ' + userId + ' socket: ' + data.socket);
         console.log(users.size + ' users currently connected');
         //getUserList(userId, users.get(userId).latitude, users.get(userId).longitude);
     });
     socket.on('request list', function (userId) {
-        console.log(userId + ' requested an update on hist list');
-        var listJson = getUserList(userId, users.get(userId)[0].latitude, users.get(userId)[0].longitude);
+        console.log(userId + ' requested an update on his list');
+        var listJson = getUserList(userId, users.get(userId).latitude, users.get(userId).longitude);
         socket.emit('update list', listJson);
     });
 
@@ -63,7 +66,7 @@ function getUserList(userId, latitude, longitude) {
     var listJson = {users: []};
     users.forEach(function (value, key) {
         if (userId !== key) {
-            var distance = distanceBetween(latitude, longitude, value[0].latitude, value[0].longitude);
+            var distance = distanceBetween(latitude, longitude, value.latitude, value.longitude);
             if (distance < maxDistance) {
                 var userJson = userToJsonString(key, distance);
                 listJson.users.push(userJson);
