@@ -26,9 +26,18 @@ io.on('connection', function (socket) {
             userId: data.fromUser,
             message: data.message
         };
-        socket.broadcast.to(users.get(data.toUser).socket.id).emit('chat message',json);
+        if (users.get(data.toUser).socket.connected) {
+            console.log("User is online!");
+            socket.broadcast.to(users.get(data.toUser).socket.id).emit('chat message',json);
+            socket.broadcast.to(users.get(data.toUser).socket.id).emit('update chat', json);
+        } else {
+            console.log("User is offline!");
+            addMessageToBacklog(data.toUser, json);
+        }
+
     });
     socket.on('disconnect', function () {
+        console.log(socket.id);
         console.log(clientIp + ' disconnected');
     });
     socket.on('update loc', function (data) {
@@ -46,6 +55,7 @@ io.on('connection', function (socket) {
         users.set(userId, data);
         console.log('New user connected: ' + userId + ' socket: ' + data.socket);
         console.log(users.size + ' users currently connected');
+        sendBacklog(userId, socket);
         //getUserList(userId, users.get(userId).latitude, users.get(userId).longitude);
     });
     socket.on('request list', function (userId) {
@@ -61,6 +71,14 @@ var port = process.env.PORT || 3000;
 http.listen(port, function () {
     console.log('listening on : ' + port);
 });
+
+function addMessageToBacklog(toUser, json) {
+    // Adding message to wait list
+}
+
+function sendBacklog(userId, socket) {
+    // Sending every waiting message
+}
 
 function getUserList(userId, latitude, longitude) {
     var listJson = {users: []};
