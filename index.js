@@ -60,8 +60,13 @@ io.on('connection', function (socket) {
     });
     socket.on('request list', function (userId) {
         console.log(userId + ' requested an update on his list');
-        var listJson = getUserList(userId, users.get(userId).latitude, users.get(userId).longitude);
-        socket.emit('update list', listJson);
+        if (users.get(userId).latitude === undefined || users.get(userId).longitude === undefined) {
+            // handle error
+            // ask for position update
+        } else {
+            var listJson = getUserList(userId, users.get(userId).latitude, users.get(userId).longitude);
+            socket.emit('update list', listJson);
+        }
     });
 
 });
