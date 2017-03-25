@@ -57,25 +57,37 @@ io.on('connection', function (socket) {
             console.log('New user connected: ' + userId + ' socket: ' + data.socket);
             console.log(users.size + ' users currently connected');
             sendBacklog(userId, socket);
-            socket.emit('connection_val',true);
+            var val = {
+                connected: true
+            }
+        }else{
+            var val = {
+                connected: false
+            }
         }
-            socket.emit('connection_val',false);
+            socket.emit('connection_val',val);
 
         //getUserList(userId, users.get(userId).latitude, users.get(userId).longitude);
     });
 
     socket.on('register', function (userId, password) {
         if(users.get(userId) != undefined) {
+
             var data = {};
             data.name.password = password;
             users.set(userId, data);
             console.log('New user connected: ' + userId + ' socket: ' + data.socket);
             console.log(users.size + ' users currently connected');
             sendBacklog(userId, socket);
-            socket.emit('register_val', true);
+            var val = {
+                registered: true
+            }
         }else {
-            socket.emit('register_val',false);
+            var val = {
+                registered: false
+            }
         }
+        socket.emit('register_val',val);
     })
     socket.on('request list', function (userId) {
         console.log(userId + ' requested an update on his list');
