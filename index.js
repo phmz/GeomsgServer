@@ -49,12 +49,9 @@ io.on('connection', function (socket) {
     });
 
     socket.on('new connection', function (userId, password) {
-        if(users.get(userId) !== undefined && users.get(userId).data.name.password == password){
-            var data = {};
-            data.socket = socket;
-            var userId = userId;
-            users.set(userId, data);
-            console.log('New user connected: ' + userId + ' socket: ' + data.socket);
+        if(users.get(userId) !== undefined && users.get(userId).password == password){
+            user.get(userId).socket = socket;
+            console.log('New user connected: ' + userId + ' socket: ' + socket);
             console.log(users.size + ' users currently connected');
             sendBacklog(userId, socket);
             var val = {
@@ -74,7 +71,8 @@ io.on('connection', function (socket) {
         if(users.get(userId) === undefined) {
 
             var data = {};
-            data.name.password = password;
+            data.socket = socket;
+            data.password = password;
             users.set(userId, data);
             console.log('New user connected: ' + userId + ' socket: ' + data.socket);
             console.log(users.size + ' users currently connected');
@@ -89,6 +87,7 @@ io.on('connection', function (socket) {
         }
         socket.emit('register_val',val);
     })
+
     socket.on('request list', function (userId) {
         console.log(userId + ' requested an update on his list');
         if (users.get(userId).latitude === undefined || users.get(userId).longitude === undefined) {
