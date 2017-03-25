@@ -49,7 +49,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('new connection', function (userId, password) {
-        if(users.get(userId) != undefined && users.get(userId).data.name.password == password){
+        if(users.get(userId) !== undefined && users.get(userId).data.name.password == password){
             var data = {};
             data.socket = socket;
             var userId = userId;
@@ -71,7 +71,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('register', function (userId, password) {
-        if(users.get(userId) != undefined) {
+        if(users.get(userId) === undefined) {
 
             var data = {};
             data.name.password = password;
