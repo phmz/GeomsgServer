@@ -48,12 +48,12 @@ io.on('connection', function (socket) {
         users.get(data.name).longitude = data.longitude;
     });
 
-    socket.on('new connection', function (userId, password) {
-        if(users.get(userId) !== undefined && users.get(userId).password == password){
-            user.get(userId).socket = socket;
-            console.log('New user connected: ' + userId + ' socket: ' + socket);
+    socket.on('new connection', function (data) {
+        if(users.get(data.username) !== undefined && users.get(data.username).password == data.password){
+            user.get(data.username).socket = socket;
+            console.log('New user connected: ' + data.username + ' socket: ' + socket);
             console.log(users.size + ' users currently connected');
-            sendBacklog(userId, socket);
+            sendBacklog(data.username, socket);
             var val = {
                 connected: true
             }
@@ -67,16 +67,16 @@ io.on('connection', function (socket) {
         //getUserList(userId, users.get(userId).latitude, users.get(userId).longitude);
     });
 
-    socket.on('register', function (userId, password) {
+    socket.on('register', function (jsonData) {
         if(users.get(userId) === undefined) {
 
             var data = {};
             data.socket = socket;
-            data.password = password;
-            users.set(userId, data);
-            console.log('New user connected: ' + userId + ' socket: ' + data.socket);
+            data.password = jsonData.password;
+            users.set(jsonData.username, data);
+            console.log('New user connected: ' + jsonData.username + ' socket: ' + data.socket);
             console.log(users.size + ' users currently connected');
-            sendBacklog(userId, socket);
+            sendBacklog(jsonData.username, socket);
             var val = {
                 registered: true
             }
