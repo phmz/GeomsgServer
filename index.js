@@ -48,16 +48,35 @@ io.on('connection', function (socket) {
         users.get(data.name).longitude = data.longitude;
     });
 
-    socket.on('new connection', function (userId) {
-        var data = {};
-        data.socket = socket;
-        var userId = userId;
-        users.set(userId, data);
-        console.log('New user connected: ' + userId + ' socket: ' + data.socket);
-        console.log(users.size + ' users currently connected');
-        sendBacklog(userId, socket);
+    socket.on('new connection', function (userId, password) {
+        if(users.get(userId) != undefined && users.get(userId).data.name.password == password){
+            var data = {};
+            data.socket = socket;
+            var userId = userId;
+            users.set(userId, data);
+            console.log('New user connected: ' + userId + ' socket: ' + data.socket);
+            console.log(users.size + ' users currently connected');
+            sendBacklog(userId, socket);
+            socket.emit('connection_val',true);
+        }
+            socket.emit('connection_val',false);
+
         //getUserList(userId, users.get(userId).latitude, users.get(userId).longitude);
     });
+
+    socket.on('register', function (userId, password) {
+        if(users.get(userId) != undefined) {
+            var data = {};
+            data.name.password = password;
+            users.set(userId, data);
+            console.log('New user connected: ' + userId + ' socket: ' + data.socket);
+            console.log(users.size + ' users currently connected');
+            sendBacklog(userId, socket);
+            socket.emit('register_val', true);
+        }else {
+            socket.emit('register_val',false);
+        }
+    })
     socket.on('request list', function (userId) {
         console.log(userId + ' requested an update on his list');
         if (users.get(userId).latitude === undefined || users.get(userId).longitude === undefined) {
