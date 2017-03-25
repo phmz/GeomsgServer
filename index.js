@@ -52,7 +52,7 @@ io.on('connection', function (socket) {
         var val;
         if(users.get(data.username) !== undefined ){
            if( users.get(data.username).password == data.password){
-                user.get(data.username).socket = socket;
+                users.get(data.username).socket = socket;
                 console.log('New user connected: ' + data.username + ' socket: ' + socket);
                 console.log(users.size + ' users currently connected');
                 sendBacklog(data.username, socket);
