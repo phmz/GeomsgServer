@@ -49,16 +49,23 @@ io.on('connection', function (socket) {
     });
 
     socket.on('new connection', function (data) {
-        if(users.get(data.username) !== undefined && users.get(data.username).password == data.password){
-            user.get(data.username).socket = socket;
-            console.log('New user connected: ' + data.username + ' socket: ' + socket);
-            console.log(users.size + ' users currently connected');
-            sendBacklog(data.username, socket);
-            var val = {
-                connected: true
-            }
-        }else{
-            var val = {
+        var val;
+        if(users.get(data.username) !== undefined ){
+           if( users.get(data.username).password == data.password){
+                user.get(data.username).socket = socket;
+                console.log('New user connected: ' + data.username + ' socket: ' + socket);
+                console.log(users.size + ' users currently connected');
+                sendBacklog(data.username, socket);
+                val = {
+                    connected: true
+                }
+            }else{
+               val = {
+                   connected: false
+               }
+           }
+        } else{
+            val = {
                 connected: false
             }
         }
@@ -68,6 +75,7 @@ io.on('connection', function (socket) {
     });
 
     socket.on('register', function (jsonData) {
+        var val;
         if(users.get(userId) === undefined) {
 
             var data = {};
@@ -77,11 +85,11 @@ io.on('connection', function (socket) {
             console.log('New user connected: ' + jsonData.username + ' socket: ' + data.socket);
             console.log(users.size + ' users currently connected');
             sendBacklog(jsonData.username, socket);
-            var val = {
+            val = {
                 registered: true
             }
         }else {
-            var val = {
+            val = {
                 registered: false
             }
         }
