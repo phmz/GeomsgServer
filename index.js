@@ -2,7 +2,7 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var users = new Map();
-var maxDistance = 10000;
+var maxDistance = 10000; // km
 
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
@@ -105,6 +105,8 @@ io.on('connection', function(socket) {
             return;
         }
         if (users.get(userId).latitude === undefined || users.get(userId).longitude === undefined) {
+            users.get(userId).latitude = 0.;
+            users.get(userId).longitude = 0.;
             // handle error
             // ask for position update
         } else {
@@ -133,9 +135,12 @@ function getUserList(userId, latitude, longitude) {
     var listJson = {
         users: []
     };
+    console.log("user " + userId + " is at latitude" + users.get(userId).latitude + " and longitude " + users.get(userId).longitude);
     users.forEach(function(value, key) {
-        if (userId !== key) {
+        console.log("checking " + key + " latitude" + value.latitude + " and longitude " + value.longitude);
+        if (userId !== key && value.latitude !== undefined && value.longitude !== undefined) {
             var distance = distanceBetween(latitude, longitude, value.latitude, value.longitude);
+            console.log("Disntance between " + userId + " and " + key + " is " + distance);
             if (distance < maxDistance) {
                 var userJson = userToJsonString(key, distance);
                 listJson.users.push(userJson);
@@ -143,6 +148,8 @@ function getUserList(userId, latitude, longitude) {
             }
         }
     });
+    console.log("list:");
+    console.log(listJson);
     return listJson;
 }
 
@@ -159,7 +166,7 @@ function distanceBetween(lat1, lon1, lat2, lon2) {
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
     var d = R * c;
-    return d / 1000;
+    return d / 1000; // km
 }
 
 if (Number.prototype.toRadians === undefined) {
