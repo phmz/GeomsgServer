@@ -7,13 +7,11 @@ var maxDistance = 10000; // km
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
-
 io.on('connection', function(socket) {
     var socketRequest = socket.request;
     var userId = socketRequest._query['userId'];
     console.log('new client ' + userId);
     var clientIp = socket.request.connection.remoteAddress;
-
     console.log(clientIp + ' connected');
     socket.on('chat message', function(data) {
         var data = data;
@@ -75,6 +73,13 @@ io.on('connection', function(socket) {
         socket.emit('connection_val', val);
 
         //getUserList(userId, users.get(userId).latitude, users.get(userId).longitude);
+    });
+
+    socket.on('reconnection', function(data){
+        if (users.get(userId) === undefined) {
+            return;
+        }
+        users.get(data.username).socket = socket;
     });
 
     socket.on('register', function(jsonData) {
