@@ -4,18 +4,18 @@ var io = require('socket.io')(http);
 var users = new Map();
 var maxDistance = 10000;
 
-app.get('/', function (req, res) {
+app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-io.on('connection', function (socket) {
+io.on('connection', function(socket) {
     var socketRequest = socket.request;
     var userId = socketRequest._query['userId'];
     console.log('new client ' + userId);
     var clientIp = socket.request.connection.remoteAddress;
 
     console.log(clientIp + ' connected');
-    socket.on('chat message', function (data) {
+    socket.on('chat message', function(data) {
         var data = data;
         console.log(data);
         console.log(data.fromUser + ' SENT A MESSAGE TO ' + data.toUser + '\n' + data.message);
@@ -28,7 +28,7 @@ io.on('connection', function (socket) {
         };
         if (users.get(data.toUser).socket.connected) {
             console.log("User is online!");
-            socket.broadcast.to(users.get(data.toUser).socket.id).emit('chat message',json);
+            socket.broadcast.to(users.get(data.toUser).socket.id).emit('chat message', json);
             socket.broadcast.to(users.get(data.toUser).socket.id).emit('update chat', json);
         } else {
             console.log("User is offline!");
@@ -36,22 +36,25 @@ io.on('connection', function (socket) {
         }
 
     });
-    socket.on('disconnect', function () {
+    socket.on('disconnect', function() {
         console.log(socket.id);
         console.log(clientIp + ' disconnected');
     });
-    socket.on('update loc', function (data) {
+    socket.on('update loc', function(data) {
         var data = data;
+        if (users.get(data.name) === undefined) {
+            return;
+        }
         console.log(clientIp + ' updated their location');
         console.log('new location, user : ' + data.name + ' change position -- latitude = ' + data.latitude + ', longitude = ' + data.longitude);
         users.get(data.name).latitude = data.latitude;
         users.get(data.name).longitude = data.longitude;
     });
 
-    socket.on('new connection', function (data) {
+    socket.on('new connection', function(data) {
         var val;
-        if(users.get(data.username) !== undefined ){
-           if( users.get(data.username).password == data.password){
+        if (users.get(data.username) !== undefined) {
+            if (users.get(data.username).password == data.password) {
                 users.get(data.username).socket = socket;
                 console.log('New user connected: ' + data.username + ' socket: ' + socket);
                 console.log(users.size + ' users currently connected');
@@ -59,24 +62,24 @@ io.on('connection', function (socket) {
                 val = {
                     connected: true
                 }
-            }else{
-               val = {
-                   connected: false
-               }
-           }
-        } else{
+            } else {
+                val = {
+                    connected: false
+                }
+            }
+        } else {
             val = {
                 connected: false
             }
         }
-            socket.emit('connection_val',val);
+        socket.emit('connection_val', val);
 
         //getUserList(userId, users.get(userId).latitude, users.get(userId).longitude);
     });
 
-    socket.on('register', function (jsonData) {
+    socket.on('register', function(jsonData) {
         var val;
-        if(users.get(userId) === undefined) {
+        if (users.get(userId) === undefined) {
 
             var data = {};
             data.socket = socket;
@@ -88,16 +91,19 @@ io.on('connection', function (socket) {
             val = {
                 registered: true
             }
-        }else {
+        } else {
             val = {
                 registered: false
             }
         }
-        socket.emit('register_val',val);
+        socket.emit('register_val', val);
     })
 
-    socket.on('request list', function (userId) {
+    socket.on('request list', function(userId) {
         console.log(userId + ' requested an update on his list');
+        if (users.get(userId) === undefined) {
+            return;
+        }
         if (users.get(userId).latitude === undefined || users.get(userId).longitude === undefined) {
             // handle error
             // ask for position update
@@ -111,7 +117,7 @@ io.on('connection', function (socket) {
 
 var port = process.env.PORT || 3000;
 
-http.listen(port, function () {
+http.listen(port, function() {
     console.log('listening on : ' + port);
 });
 
@@ -124,8 +130,10 @@ function sendBacklog(userId, socket) {
 }
 
 function getUserList(userId, latitude, longitude) {
-    var listJson = {users: []};
-    users.forEach(function (value, key) {
+    var listJson = {
+        users: []
+    };
+    users.forEach(function(value, key) {
         if (userId !== key) {
             var distance = distanceBetween(latitude, longitude, value.latitude, value.longitude);
             if (distance < maxDistance) {
@@ -155,7 +163,7 @@ function distanceBetween(lat1, lon1, lat2, lon2) {
 }
 
 if (Number.prototype.toRadians === undefined) {
-    Number.prototype.toRadians = function () {
+    Number.prototype.toRadians = function() {
         return this * Math.PI / 180;
     };
 }
